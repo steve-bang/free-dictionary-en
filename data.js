@@ -37,12 +37,38 @@ const setCache = (key, data) => {
   }
 };
 
-function cleanText(text) {
-  if (!text) return "";
-  return text
-    .replace(/\s+/g, " ")   // Replace multiple whitespace (including \n, \t) with single space
-    .replace(/&nbsp;/g, " ") // Handle non-breaking spaces from HTML
-    .trim();                 // Remove leading/trailing spaces
+/**
+ * Cleans and normalizes text extracted from HTML or web scrapers.
+ * 
+ * @param {string} input - The raw text to clean.
+ * @returns {string} - Cleaned and normalized text.
+ */
+function cleanText(input) {
+  if (typeof input !== "string") return "";
+
+  return input
+    // Convert HTML entities like &nbsp; &amp; etc.
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&#39;/gi, "'")
+    .replace(/&quot;/gi, '"')
+
+    // Remove HTML tags (safely)
+    .replace(/<[^>]+>/g, "")
+
+    // Replace multiple whitespace, tabs, and newlines with a single space
+    .replace(/\s+/g, " ")
+
+    // Remove invisible Unicode characters (e.g., zero-width spaces, BOM)
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+
+    // Normalize Unicode form
+    .normalize("NFKC")
+
+    // Trim leading/trailing whitespace
+    .trim();
 }
 
 const fetchVerbs = async (wiki) => {
