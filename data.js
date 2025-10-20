@@ -37,6 +37,14 @@ const setCache = (key, data) => {
   }
 };
 
+function cleanText(text) {
+  if (!text) return "";
+  return text
+    .replace(/\s+/g, " ")   // Replace multiple whitespace (including \n, \t) with single space
+    .replace(/&nbsp;/g, " ") // Handle non-breaking spaces from HTML
+    .trim();                 // Remove leading/trailing spaces
+}
+
 const fetchVerbs = async (wiki) => {
   const cacheKey = getCacheKey(wiki);
   const cached = getFromCache(cacheKey);
@@ -179,8 +187,8 @@ app.get("/api/dictionary/:language/:entry", async (req, res, next) => {
       const $element = $(element);
       const pos = $element.closest(".pr.entry-body__el").find(".pos.dpos").first().text();
       const source = $element.closest(".pr.dictionary").attr("data-id");
-      const text = $element.find(".def.ddef_d.db").text();
-      const translation = $element.find(".def-body.ddef_b > span.trans.dtrans").text();
+      const text = cleanText($element.find(".def.ddef_d.db").text());
+      const translation = cleanText($element.find(".def-body.ddef_b > span.trans.dtrans").text());
       
       const example = $element.find(".def-body.ddef_b > .examp.dexamp").map((i, ex) => {
         const $ex = $(ex);
